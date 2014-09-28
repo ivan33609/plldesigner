@@ -143,7 +143,7 @@ class Pnoise(object):
         slopes: array_like
             Array with the slopes were the noise is to going to be interpolated
         label: str
-            Phase noise labal
+            Phase noise label
 
         Returns
         -------
