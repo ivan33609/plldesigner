@@ -28,9 +28,9 @@ Development plan
   1. Noise, specially for oscillator can be specified as $f_n/fm^{-n}+f_{n=1}/fm^{-n+1}+$ (done)
   2. over rule the addition operator (done)
   3. Interpolate (done)
-  4. Generate a model of the data (extrapolate) (Pospone)
+  4. Generate a model of the data (extrapolate) (Done)
   5. Create plots with asymptotic values (Postpone)
-  6. Plot several noise sources and the resultant 
+  6. Plot several noise sources and the resultant (Postpone)
 * LTI model of the PLL
   1. Second order approximation (Done)
   2. Phase margin plot (To be Done)

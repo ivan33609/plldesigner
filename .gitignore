@@ -1,6 +1,6 @@
 *.pyc
 /notebooks/.ipynb_checkpoints
 /plldesigner/*.pyc
-/build/*
+/build
 .idea
 
