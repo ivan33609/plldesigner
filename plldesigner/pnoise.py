@@ -124,7 +124,7 @@ class Pnoise(object):
             fm, ldbc_fm, slopes, fi)
         return pnoise_class
 
-    def eval_func(self, fx):
+    def create_new(self, fx):
         """
         Return a Pnoise clase with with different frequency sampling
         """
@@ -400,5 +400,5 @@ def test_integration(plot=False):
 if __name__ == "__main__":
     test__init__(plot=False)
     test_private_functions()
-    test_with_points_slopes(plot=True)
+    test_with_points_slopes(plot=False)
     test_integration(plot=False)
