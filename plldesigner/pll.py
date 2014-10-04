@@ -17,11 +17,10 @@ class AnalogPLL(object):
         self.prescaler, self.plltype = prescaler, plltype
         self.filter_vals = filter_vals
 
-
     def loopcalc(self, fc, pm, Lvco, Lvco_fr, DL, Temp=300.13):
         """
         Calculates the filter of a pll of type2 and 2nd Order
-        
+
         Parameters
         ----------
         fc : float
@@ -30,7 +29,7 @@ class AnalogPLL(object):
             The phase margin in degrees
         Lvco : float
             VCO phase noise in dBc/Hz at frequency Lvco_fr
-        Lvco_fr : float 
+        Lvco_fr : float
             Frequency where the  Lvco is specified
         DL : float
             Ratio of the noise of the Filter to the the noise of the VCO due to R1
@@ -40,7 +39,7 @@ class AnalogPLL(object):
             Division ration average
         Temp : float
             temperature in K
-        
+
         Return
         ------
         filter_val      Is a dictionary with all the filter components
@@ -175,7 +174,7 @@ class AnalogPLLDict(AnalogPLL):
             _dict['Lvco_fr'], _dict['DL'], Temp=_dict['Temp'])
 
 
-""" 
+"""
 Tests
 """
 from numpy.testing import  assert_almost_equal
