@@ -1,5 +1,6 @@
 plldesigner
 ===========
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/jfosorio/plldesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 A pythonic tool for PLL design and exploration (focused in PLLs implemented in
