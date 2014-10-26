@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-A clase to design and analyse PLL's using the phase domain model
+A clase to design and analyses PLL's using the phase domain model
 """
 
 from __future__ import (absolute_import, division, print_function)
