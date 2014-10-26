@@ -33,8 +33,8 @@ $f_n/fm^{-n}+f_{n=1}/fm^{-n+1}+$
   - [x] over rule the addition operation
   - [x] Interpolate
   - [x] Generate a model of the data (extrapolate)
-  - [x] Create plots with asymptotic values (Postpone)
-  - [ ] Create the object with phase vs t point
+  - [x] Create plots with asymptotic values (Done)
+  - [-] Create the object with phase vs t point (no implemented)
   - [ ] Plot several noise sources and the resultant (Postpone)
 - [ ] **LTI model of the PLL**
   - [x] Second order approximation
