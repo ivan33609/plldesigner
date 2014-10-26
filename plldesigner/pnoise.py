@@ -330,7 +330,7 @@ def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
 
 
 """
-Testing
+Testing 
 """
 from numpy.testing import assert_almost_equal
 
@@ -369,18 +369,18 @@ def test_private_functions():
 
 
 def test_with_points_slopes(plot=False):
+    from copy import copy
     # test the new
     fi = np.array([1e4, 1e9])
     ldbc_fi = np.array([-40, -150])
     slopes = np.array([-30, -20])
     pnoise_model = Pnoise.with_points_slopes(fi, ldbc_fi, slopes)
     fm = np.logspace(3, 9, 20)
-    pnoise_extrapolated = pnoise_model
+    pnoise_extrapolated = copy(pnoise_model)
     pnoise_extrapolated.fm = fm
-
     if plot:
         pnoise_model.plot('o')
-        pnoise_extrapolated.plot()
+        pnoise_extrapolated.plot('-x')
         plt.show()
 
 
@@ -400,5 +400,5 @@ def test_integration(plot=False):
 if __name__ == "__main__":
     test__init__(plot=False)
     test_private_functions()
-    test_with_points_slopes(plot=False)
+    test_with_points_slopes(plot=True)
     test_integration(plot=False)
