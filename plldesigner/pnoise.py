@@ -330,7 +330,7 @@ def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
 
 
 """
-Testing and other functions
+Testing
 """
 from numpy.testing import assert_almost_equal
 
