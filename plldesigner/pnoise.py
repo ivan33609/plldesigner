@@ -21,7 +21,7 @@ class Pnoise(object):
     """
     Phase noise class to manipulate phase noise data in the frequency offset
     format
-    
+
     Parameters
     ----------
     fm : array_like
@@ -63,13 +63,13 @@ class Pnoise(object):
     @property
     def fm(self):
         return self._fm
-    
+
     @fm.setter
     def fm(self, fi):
         fi = np.asarray(fi)
         self._fm = fi
         self.ldbc = self.func_ldbc(fi)
-        
+
 
     @classmethod
     def with_function(cls, func, label=None):
@@ -165,7 +165,9 @@ class Pnoise(object):
         return ax
 
     def __add__(self, other):
-        """ Addition of though pnoise components """
+        """
+        Addition of though pnoise components
+        """
         try:
             phi2fm = 2 * 10 ** (self.ldbc / 10)
             phi2fm_other = 2 * 10 ** (other.ldbc / 10)
@@ -178,7 +180,9 @@ class Pnoise(object):
         return add_noise
 
     def __mul__(self, mult):
-        """ Multiplication of noise by a constant """
+        """
+        Multiplication of noise by a constant
+        """
         if type(mult) not in (int, float, np.ndarray):
             raise TypeError('unsupported operand type(s) for mult')
         else:
@@ -195,35 +199,37 @@ class Pnoise(object):
             return mult_noise
 
     def integrate(self, fl=None, fh=None, method='trapz'):
-        """ Returns the integrated phase noise in (rad/rms)
+        """
+        Returns the integrated phase noise in (rad/rms)
 
-            Parameters
-            ----------
-            fl : float
-                Lower frequency integration limit. Default is: min(fm)
-            fh : float
-                Higher frequency integration limit. Default is: max(fm)
-            method : str
-                Integration method used. Default is trapz with logarithmic 
-                interpolation 
-                
-            Returns
-            -------
-            phi_out : float
-                The integrated phase in rad
+        Parameters
+        ----------
+        fl : float
+            Lower frequency integration limit. Default is: min(fm)
+        fh : float
+            Higher frequency integration limit. Default is: max(fm)
+        method : str
+            Integration method used. Default is trapz with logarithmic
+            interpolation
+
+        Returns
+        -------
+        phi_out : float
+            The integrated phase in rad
         """
 
         def gardner(ldbc_ix, fm_ix):
-            """ Gardner integration method
+            """
+            Gardner integration method
 
-                Parameters
-                ----------
-                ldbc_ix :
-                fm_ix :
+            Parameters
+            ----------
+            ldbc_ix :
+            fm_ix :
 
-                Returns
-                -------
-                phi_sqrt :
+            Returns
+            -------
+            phi_sqrt :
 
             """
             lfm = len(ldbc_ix)
@@ -244,16 +250,17 @@ class Pnoise(object):
             return sqrt(sum(bi))
 
         def trapz(ldbc_ix, fm_ix):
-            """ Trapezoidal integration of the phase noise
+            """
+            Trapezoidal integration of the phase noise
 
-                Parameters
-                ----------
-                ldbc_ix :
-                fm_ix :
+            Parameters
+            ----------
+            ldbc_ix :
+            fm_ix :
 
-                Returns
-                -------
-                phi_out :
+            Returns
+            -------
+            phi_out :
 
             """
             phi_2 = 2 * 10 ** (ldbc_ix / 10)
@@ -273,6 +280,24 @@ class Pnoise(object):
         else:
             raise ValueError('Integrating method not implemented')
         return self.phi_out
+
+    def interp1d(self, fi):
+        """
+        Interpolate the phase noise interpolated at frequency fi
+
+        Parameters
+        ---------
+        fi : array_like
+        frequency where the noise is to be interpolated
+
+        Return
+        ------
+        ldbc : array_like
+        The interpolated noise at frequencies fi
+        """
+        fi = np.asarray(fi)
+        ldbc = self.func_ldbc(fi)
+        return ldbc
 
 
 def __pnoise_interp1d__(fm, ldbc_fm, fi):
@@ -330,9 +355,19 @@ def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
 
 
 """
-Testing 
+Testing
 """
 from numpy.testing import assert_almost_equal
+
+
+def test_interp1d_class(plot=False):
+    fm = np.array([1e3, 1e5, 1e7])
+    lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
+    val = lorentzian.interp1d(1e6)
+    assert_almost_equal(val, -120, 4)
+    if plot:
+        lorentzian.plot()
+        plt.show()
 
 
 def test__init__(plot=False):
@@ -397,8 +432,10 @@ def test_integration(plot=False):
     assert_almost_equal(iadded_trapz, i_f_int, 5)
 
 
+
 if __name__ == "__main__":
+    test_interp1d_class(plot=False)
     test__init__(plot=False)
     test_private_functions()
-    test_with_points_slopes(plot=True)
+    test_with_points_slopes(plot=False)
     test_integration(plot=False)
