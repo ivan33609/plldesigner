@@ -148,7 +148,7 @@ class Pnoise(object):
         Returns
         -------
         pnoise_class:
-            A new class with this values
+            A new class with noise that behaves asymptotically
         """
         fi = np.asarray(fi)
         slopes = np.asarray(slopes)
@@ -224,12 +224,15 @@ class Pnoise(object):
 
             Parameters
             ----------
-            ldbc_ix :
-            fm_ix :
+            ldbc_ix : array_like
+                Phase noise in dBc/Hz              
+            fm_ix : array_like
+                Frequency offset for the phase noise
 
             Returns
             -------
-            phi_sqrt :
+            phi_sqrt : array_like
+                Integrated phase in rads
 
             """
             lfm = len(ldbc_ix)
@@ -255,12 +258,16 @@ class Pnoise(object):
 
             Parameters
             ----------
-            ldbc_ix :
-            fm_ix :
+            ldbc_ix : array_like
+                Phase noise in dBc/Hz
+                
+            fm_ix : array_like
+                Frequency offset for the phase noise points
 
             Returns
             -------
-            phi_out :
+            phi_out : array_like
+                Integrated phase in rad
 
             """
             phi_2 = 2 * 10 ** (ldbc_ix / 10)
@@ -283,17 +290,17 @@ class Pnoise(object):
 
     def interp1d(self, fi):
         """
-        Interpolate the phase noise interpolated at frequency fi
+        Interpolate the phase noise assuming logarithmic linear behaviro
 
         Parameters
         ---------
         fi : array_like
-        frequency where the noise is to be interpolated
+            Frequency where the noise is to be interpolated
 
         Return
         ------
         ldbc : array_like
-        The interpolated noise at frequencies fi
+            The interpolated noise at frequencies fi
         """
         fi = np.asarray(fi)
         ldbc = self.func_ldbc(fi)
@@ -301,7 +308,7 @@ class Pnoise(object):
 
 
 def __pnoise_interp1d__(fm, ldbc_fm, fi):
-    """ Interpolate the phase noise assuming logaritmic linear behavior
+    """ Interpolate the phase noise assuming logarithmic linear behavior
 
         Parameters
         ---------
@@ -320,18 +327,24 @@ def __pnoise_interp1d__(fm, ldbc_fm, fi):
 
 def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
     """
-    Function to evaluate a asymptotic model of the phase noise
-
+    Create a functions that follows the asymptotical behavior of phase noise.
+    
+    
     Parameters
     ----------
-    fm :
-    slopes :
-    ldbc_fm :
-    fi :
+    fm : array_like
+        Frequency offset of the input points
+    ldbc_fm : array_like
+        Phase noise in dBc/Hz
+    slopes : array_like
+        Slopes in dB/dec
+    fi : array_like
+        Points that are to be calculated
 
     returns
     -------
-    ldbc_fi :
+    ldbc_fi : array_like
+        Interpolated points
 
     """
     phi2 = 2 * 10 ** (ldbc_fm / 10)
