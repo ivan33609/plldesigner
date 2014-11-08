@@ -2,6 +2,10 @@ plldesigner
 ===========
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/jfosorio/plldesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Coverage Status](https://coveralls.io/repos/jfosorio/plldesigner/badge.png)](https://coveralls.io/r/jfosorio/plldesigner)
+
+[![Travis Status]](https://travis-ci.org/jfosorio/plldesigner.svg?branch=master)
+
 
 A pythonic tool for PLL design and exploration (focused in PLLs implemented in
   hardware). More information can be found in
