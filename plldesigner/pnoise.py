@@ -371,84 +371,81 @@ def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
 Testing
 """
 from numpy.testing import assert_almost_equal
+import unittest
+
+class Test_pnoise(unittest.TestCase):
+    def test_interp1d_class(self, plot=False):
+        fm = np.array([1e3, 1e5, 1e7])
+        lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
+        val = lorentzian.interp1d(1e6)
+        assert_almost_equal(val, -120, 4)
+        if plot:
+            lorentzian.plot()
+            plt.show()
 
 
-def test_interp1d_class(plot=False):
-    fm = np.array([1e3, 1e5, 1e7])
-    lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
-    val = lorentzian.interp1d(1e6)
-    assert_almost_equal(val, -120, 4)
-    if plot:
-        lorentzian.plot()
-        plt.show()
+    def test__init__(self, plot=False):
+        # Test __init__
+        fm = np.logspace(3, 9, 100)
+        lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
+        white = Pnoise(fm, -120 * np.ones(fm.shape), label='white')
+        added = white + lorentzian
+        added.label = "addition"
+        assert_almost_equal(added.ldbc[0], -60, 4)
+        assert_almost_equal(added.ldbc[-1], -120, 4)
+        ix, = np.where(fm > 1e6)
+        assert_almost_equal(added.ldbc[ix[0]], -117.2822, 4)
+        if plot:
+            lorentzian.plot()
+            white.plot()
+            added.plot()
+            plt.legend()
+            plt.show()
 
 
-def test__init__(plot=False):
-    # Test __init__
-    fm = np.logspace(3, 9, 100)
-    lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
-    white = Pnoise(fm, -120 * np.ones(fm.shape), label='white')
-    added = white + lorentzian
-    added.label = "addition"
-    assert_almost_equal(added.ldbc[0], -60, 4)
-    assert_almost_equal(added.ldbc[-1], -120, 4)
-    ix, = np.where(fm > 1e6)
-    assert_almost_equal(added.ldbc[ix[0]], -117.2822, 4)
-    if plot:
-        lorentzian.plot()
-        white.plot()
-        added.plot()
-        plt.legend()
-        plt.show()
+    def test_private_functions(self):
+        # test the new
+        fi = np.array([1e4, 1e9])
+        ldbc_fi = np.array([-40, -150])
+        slopes = np.array([-30, -20])
+        fm = np.logspace(3, 9, 20)
+        ldbc_model = __pnoise_point_slopes__(fi, ldbc_fi, slopes, fm)
+        func = intp.interp1d(log10(fm), ldbc_model, kind='linear')
+        ldbc_0 = func(log10(fi[0]))
+        ldbc_1 = func(log10(fi[1]))
+        assert_almost_equal(ldbc_0, ldbc_fi[0], 0)
+        assert_almost_equal(ldbc_1, ldbc_fi[1], 0)
 
 
-def test_private_functions():
-    # test the new
-    fi = np.array([1e4, 1e9])
-    ldbc_fi = np.array([-40, -150])
-    slopes = np.array([-30, -20])
-    fm = np.logspace(3, 9, 20)
-    ldbc_model = __pnoise_point_slopes__(fi, ldbc_fi, slopes, fm)
-    func = intp.interp1d(log10(fm), ldbc_model, kind='linear')
-    ldbc_0 = func(log10(fi[0]))
-    ldbc_1 = func(log10(fi[1]))
-    assert_almost_equal(ldbc_0, ldbc_fi[0], 0)
-    assert_almost_equal(ldbc_1, ldbc_fi[1], 0)
+    def test_with_points_slopes(self, plot=False):
+        from copy import copy
+        # test the new
+        fi = np.array([1e4, 1e9])
+        ldbc_fi = np.array([-40, -150])
+        slopes = np.array([-30, -20])
+        pnoise_model = Pnoise.with_points_slopes(fi, ldbc_fi, slopes)
+        fm = np.logspace(3, 9, 20)
+        pnoise_extrapolated = copy(pnoise_model)
+        pnoise_extrapolated.fm = fm
+        if plot:
+            pnoise_model.plot('o')
+            pnoise_extrapolated.plot('-x')
+            plt.show()
 
 
-def test_with_points_slopes(plot=False):
-    from copy import copy
-    # test the new
-    fi = np.array([1e4, 1e9])
-    ldbc_fi = np.array([-40, -150])
-    slopes = np.array([-30, -20])
-    pnoise_model = Pnoise.with_points_slopes(fi, ldbc_fi, slopes)
-    fm = np.logspace(3, 9, 20)
-    pnoise_extrapolated = copy(pnoise_model)
-    pnoise_extrapolated.fm = fm
-    if plot:
-        pnoise_model.plot('o')
-        pnoise_extrapolated.plot('-x')
-        plt.show()
-
-
-def test_integration(plot=False):
-    fm = np.logspace(4,8,1000)
-    lorentzian  = Pnoise(fm,10*np.log10(1/(fm*fm)),label='Lorentzian')
-    white = Pnoise(fm,-120*np.ones(fm.shape),label='white')
-    added = lorentzian+white
-    iadded_gardner = added.integrate()
-    iadded_trapz = added.integrate(method='trapz')
-    f_int = lambda fm : 2.0e-12*fm-2.0/fm
-    i_f_int = np.sqrt(f_int(fm[-1])-f_int(fm[0]))
-    assert_almost_equal(iadded_trapz, i_f_int, 5)
-    assert_almost_equal(iadded_trapz, i_f_int, 5)
+    def test_integration(self, plot=False):
+        fm = np.logspace(4,8,1000)
+        lorentzian  = Pnoise(fm,10*np.log10(1/(fm*fm)),label='Lorentzian')
+        white = Pnoise(fm,-120*np.ones(fm.shape),label='white')
+        added = lorentzian+white
+        iadded_gardner = added.integrate()
+        iadded_trapz = added.integrate(method='trapz')
+        f_int = lambda fm : 2.0e-12*fm-2.0/fm
+        i_f_int = np.sqrt(f_int(fm[-1])-f_int(fm[0]))
+        assert_almost_equal(iadded_trapz, i_f_int, 5)
+        assert_almost_equal(iadded_trapz, i_f_int, 5)
 
 
 
 if __name__ == "__main__":
-    test_interp1d_class(plot=False)
-    test__init__(plot=False)
-    test_private_functions()
-    test_with_points_slopes(plot=False)
-    test_integration(plot=False)
+    unittest.main()
