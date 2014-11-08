@@ -2,5 +2,6 @@
 /notebooks/.ipynb_checkpoints
 /plldesigner/*.pyc
 /build
+/dist
 .idea
 
