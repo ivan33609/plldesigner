@@ -25,7 +25,7 @@ install:
  
 # Run test
 script:
-  - nosetests --with-coverage --cover-package=plldesigner --logging-level=INFO
+  - nosetests --with-coverage plldesigner/pnoise.py --logging-level=INFO
  
 # Calculate coverage
 after_success:
