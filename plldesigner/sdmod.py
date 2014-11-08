@@ -244,32 +244,43 @@ def L_mash_dB(m, fref, n=1.0):
     return ldbc 
 
 
+"""
+Testing
+"""
+import unittest
+
+class Test_pnoise(unittest.TestCase):
+    def test_mean_value(self):
+        
+        from numpy.testing import assert_almost_equal
+        import numpy.random as rnd
+        
+        # Test order one assert the mean value
+        floatnum = rnd.rand() * np.ones(100000)
+
+        # order one
+        sequence, cycles = gen_mash(1, 19, (floatnum * 2 ** 19).astype(int))
+        assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+        # order two
+        sequence, cycles = gen_mash(2, 19, (floatnum * 2 ** 19).astype(int))
+        assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+
+        # order three
+        sequence, cycles = gen_mash(3, 19, (floatnum * 2 ** 19).astype(int))
+        assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+
+        # order three
+        sequence, cycles = gen_mash(3, 19, 0.25 * np.ones(100000) * 2 ** 19)
+        assert_almost_equal(sequence.mean(), 0.25, 4)
+
+        # order three
+        sequence, cycles = gen_mash(4, 19, 0.25 * np.ones(100000) * 2 ** 19)
+        assert_almost_equal(sequence.mean(), 0.25, 4)
+
+        # Using the class the test is done as:
+        sd_mash = SDModulator('mash', 3, 19,
+                              (np.array([0.323232] * 100000) * 2 ** 19).astype(int))
+        assert_almost_equal(sd_mash.seq.mean(), 0.323232, 4)
+
 if __name__ == "__main__":
-    from numpy.testing import assert_almost_equal
-    import numpy.random as rnd
-    # Test order one assert the mean value
-    floatnum = rnd.rand() * np.ones(100000)
-
-    # order one
-    sequence, cycles = gen_mash(1, 19, (floatnum * 2 ** 19).astype(int))
-    assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
-    # order two
-    sequence, cycles = gen_mash(2, 19, (floatnum * 2 ** 19).astype(int))
-    assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
-
-    # order three
-    sequence, cycles = gen_mash(3, 19, (floatnum * 2 ** 19).astype(int))
-    assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
-
-    # order three
-    sequence, cycles = gen_mash(3, 19, 0.25 * np.ones(100000) * 2 ** 19)
-    assert_almost_equal(sequence.mean(), 0.25, 4)
-
-    # order three
-    sequence, cycles = gen_mash(4, 19, 0.25 * np.ones(100000) * 2 ** 19)
-    assert_almost_equal(sequence.mean(), 0.25, 4)
-
-    # Using the class the test is done as:
-    sd_mash = SDModulator('mash', 3, 19,
-                          (np.array([0.323232] * 100000) * 2 ** 19).astype(int))
-    assert_almost_equal(sd_mash.seq.mean(), 0.323232, 4)
+    unittest.main()

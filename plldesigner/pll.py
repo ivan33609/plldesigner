@@ -177,23 +177,21 @@ class AnalogPLLDict(AnalogPLL):
 """
 Tests
 """
-from numpy.testing import  assert_almost_equal
+import unittest
 
-def test_loopcalc():
-    myAnalogPLL=AnalogPLL(3, 521.8e+06, Navg=55.22, prescaler=2, plltype='Integer')
-    myAnalogPLL.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
-    # Assert filter values for a specific design
-    assert_almost_equal(myAnalogPLL.filter_vals['C1'], 4.2842e-10, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['C2'], 3.31384e-11, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['C3'], 3.31384e-12, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['Icp'], 516.691e-6, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['R1'], 1.3864303e3, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['R2'], 1.28688908e3, 4)
-
-
-def tests():
-    test_loopcalc()
+class Test_pnoise(unittest.TestCase):
+    def test_loopcalc(self):
+        from numpy.testing import  assert_almost_equal
+        myAnalogPLL=AnalogPLL(3, 521.8e+06, Navg=55.22, prescaler=2, plltype='Integer')
+        myAnalogPLL.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
+        # Assert filter values for a specific design
+        assert_almost_equal(myAnalogPLL.filter_vals['C1'], 4.2842e-10, 4)
+        assert_almost_equal(myAnalogPLL.filter_vals['C2'], 3.31384e-11, 4)
+        assert_almost_equal(myAnalogPLL.filter_vals['C3'], 3.31384e-12, 4)
+        assert_almost_equal(myAnalogPLL.filter_vals['Icp'], 516.691e-6, 4)
+        assert_almost_equal(myAnalogPLL.filter_vals['R1'], 1.3864303e3, 4)
+        assert_almost_equal(myAnalogPLL.filter_vals['R2'], 1.28688908e3, 4)
 
 
 if __name__ == "__main__":
-    tests()
+    unittest.main()

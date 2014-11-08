@@ -26,6 +26,8 @@ install:
 # Run test
 script:
   - nosetests --with-coverage plldesigner/pnoise.py --logging-level=INFO
+  - nosetests --with-coverage plldesigner/pll.py --logging-level=INFO
+  - nosetests --with-coverage plldesigner/sdmod.py --logging-level=INFO
  
 # Calculate coverage
 after_success:

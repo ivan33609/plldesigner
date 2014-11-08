@@ -446,6 +446,5 @@ class Test_pnoise(unittest.TestCase):
         assert_almost_equal(iadded_trapz, i_f_int, 5)
 
 
-
 if __name__ == "__main__":
     unittest.main()
