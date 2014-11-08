@@ -20,11 +20,12 @@ install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose dateutil pandas statsmodels
   # Coverage packages are on my binstar channel
   - conda install --yes -c dan_blanchard python-coveralls nose-cov
+  - pip install coveralls
   - python setup.py install
  
 # Run test
 script:
-  - nosetests --with-cov --cov plldesigner --cov-config .coveragerc --logging-level=INFO
+  - nosetests --with-coverage --cover-package=plldesigner --logging-level=INFO
  
 # Calculate coverage
 after_success:

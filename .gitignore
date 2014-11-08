@@ -1,7 +1,10 @@
 *.pyc
 /notebooks/.ipynb_checkpoints
 /plldesigner/*.pyc
+/plldesigner/.coverage
 /build
 /dist
+.coverage
+.coveragerc
 .idea
 
