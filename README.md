@@ -4,7 +4,7 @@ plldesigner
 
 [![Coverage Status](https://coveralls.io/repos/jfosorio/plldesigner/badge.png)](https://coveralls.io/r/jfosorio/plldesigner)
 
-[![Travis Status]](https://travis-ci.org/jfosorio/plldesigner.svg?branch=master)
+[![Travis Status](https://travis-ci.org/jfosorio/plldesigner.svg?branch=master)]
 
 
 A pythonic tool for PLL design and exploration (focused in PLLs implemented in
