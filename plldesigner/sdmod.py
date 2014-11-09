@@ -78,7 +78,7 @@ def gen_mash(order, n, k, init=()):
         state0 = zeros(L, dtype=np.int)
         if len(init) == 1:
             state0[0] = init[0]
-        for j in arange(1, L):
+        for j in range(L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -102,7 +102,7 @@ def gen_mash(order, n, k, init=()):
             state1[0] = init[1]
 
         # Implement the SDM
-        for j in arange(1, L):
+        for j in range(L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -135,7 +135,7 @@ def gen_mash(order, n, k, init=()):
         overflow2 = zeros(L, dtype=np.int)
 
         # Implement the SDM
-        for j in arange(1, L):
+        for j in range(L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -179,7 +179,7 @@ def gen_mash(order, n, k, init=()):
         overflow2 = zeros(L, dtype=np.int)
         overflow3 = zeros(L, dtype=np.int)
         # Implement the SDM
-        for j in arange(1, L):
+        for j in range(L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -249,7 +249,7 @@ Testing
 """
 import unittest
 
-class Test_pnoise(unittest.TestCase):
+class Test_sdmod(unittest.TestCase):
     def test_mean_value(self):
         
         from numpy.testing import assert_almost_equal
