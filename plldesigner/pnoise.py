@@ -57,8 +57,12 @@ class Pnoise(object):
 
         self.ldbc = __funits__[units](np.asarray(pnfm))
 
+        # keep the original interpolation data
+        self._fmi = np.copy(self._fm)
+        self._ldbci = np.copy(self.ldbc)
+
         self.func_ldbc = lambda fx:\
-            __pnoise_interp1d__(np.copy(fm), np.copy(self.ldbc), fx)
+            __pnoise_interp1d__(self._fmi, self._ldbci, fx)
 
     @property
     def fm(self):
@@ -129,10 +133,13 @@ class Pnoise(object):
         Add extra points to a noise object
         """
         assert len(fx) == len(ldbc), 'arrays have to be of equal lenght'
+        #self._fmi = np.copy(self._fm)
+        #self._ldbci = np.copy(self.ldbc)
+
         ldbc = np.array(ldbc)
         # Concatenate  vectors
-        ldbc = np.hstack((ldbc, self.ldbc))
-        fi = np.hstack((fx, self.fm))
+        ldbc = np.hstack((ldbc, self._ldbci))
+        fi = np.hstack((fx, self._fmi))
         # Find repeted values
         fi_x, ix  = np.unique(fi, return_index=True)
         ldbc_x = ldbc[ix]
@@ -141,8 +148,9 @@ class Pnoise(object):
         ix = np.argsort(fi_x)
         self._fm = fi_x[ix]
         self.ldbc = ldbc_x[ix]
-        self.func_ldbc = lambda fx:\
-            __pnoise_interp1d__(np.copy(fi_x), np.copy(self.ldbc), fx)
+        # change the interpolation values
+        self._fmi = np.copy(fi_x[ix])
+        self._ldbci = np.copy(ldbc_x[ix])
 
 
     def create_new(self, fx):
@@ -342,6 +350,7 @@ def __pnoise_interp1d__(fm, ldbc_fm, fi):
         ldbc_fi :
 
     """
+
     func_intp = intp.interp1d(log10(fm), ldbc_fm, kind='linear')
     ldbc_fi = func_intp(log10(fi))
     return ldbc_fi
@@ -472,6 +481,9 @@ class Test_pnoise(unittest.TestCase):
         obj.add_points([1e2, 1e3, 1e10], [-80, -70, -160])
         assert np.all(obj.fm == [1e2, 1e3, 1e6, 1e9, 1e10])
         assert np.all(obj.ldbc == [-80, -70, -120, -140, -160])
+        # Check deep the interpolation
+        obj.fm = [1e2, 1e6, 1.1e5, 7e7]
+        obj.fm = [1e3, 1e6, 1.1e5,7e7, 1e10]
 
 
 if __name__ == "__main__":
