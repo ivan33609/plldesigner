@@ -124,6 +124,27 @@ class Pnoise(object):
             fm, ldbc_fm, slopes, fi)
         return pnoise_class
 
+    def add_points(self, fx, ldbc):
+        """
+        Add extra points to a noise object
+        """
+        assert len(fx) == len(ldbc), 'arrays have to be of equal lenght'
+        ldbc = np.array(ldbc)
+        # Concatenate  vectors
+        ldbc = np.hstack((ldbc, self.ldbc))
+        fi = np.hstack((fx, self.fm))
+        # Find repeted values
+        fi_x, ix  = np.unique(fi, return_index=True)
+        ldbc_x = ldbc[ix]
+
+        # Update the object
+        ix = np.argsort(fi_x)
+        self._fm = fi_x[ix]
+        self.ldbc = ldbc_x[ix]
+        self.func_ldbc = lambda fx:\
+            __pnoise_interp1d__(np.copy(fi_x), np.copy(self.ldbc), fx)
+
+
     def create_new(self, fx):
         """
         Return a Pnoise clase with with different frequency sampling
@@ -134,7 +155,8 @@ class Pnoise(object):
 
     def asymptotic_model(self, fi, slopes, label=None):
         """
-        Return a phase noise function made with the asymptotic behavior extrapolated at certain frequencies
+        Return a phase noise function made with the asymptotic behavior
+        extrapolated at certain frequencies
 
         Parameters
         ----------
@@ -225,7 +247,7 @@ class Pnoise(object):
             Parameters
             ----------
             ldbc_ix : array_like
-                Phase noise in dBc/Hz              
+                Phase noise in dBc/Hz
             fm_ix : array_like
                 Frequency offset for the phase noise
 
@@ -260,7 +282,7 @@ class Pnoise(object):
             ----------
             ldbc_ix : array_like
                 Phase noise in dBc/Hz
-                
+
             fm_ix : array_like
                 Frequency offset for the phase noise points
 
@@ -328,8 +350,8 @@ def __pnoise_interp1d__(fm, ldbc_fm, fi):
 def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
     """
     Create a functions that follows the asymptotical behavior of phase noise.
-    
-    
+
+
     Parameters
     ----------
     fm : array_like
@@ -444,6 +466,12 @@ class Test_pnoise(unittest.TestCase):
         i_f_int = np.sqrt(f_int(fm[-1])-f_int(fm[0]))
         assert_almost_equal(iadded_trapz, i_f_int, 5)
         assert_almost_equal(iadded_trapz, i_f_int, 5)
+
+    def test_add_points(self, plot=False):
+        obj = Pnoise([1e3, 1e6, 1e9], [-100, -120, -140])
+        obj.add_points([1e2, 1e3, 1e10], [-80, -70, -160])
+        assert np.all(obj.fm == [1e2, 1e3, 1e6, 1e9, 1e10])
+        assert np.all(obj.ldbc == [-80, -70, -120, -140, -160])
 
 
 if __name__ == "__main__":
