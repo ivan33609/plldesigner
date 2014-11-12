@@ -238,10 +238,10 @@ def L_mash_dB(m, fref, n=1.0):
     ldbc : Pnoise
         Return a function object of the noise
     """
-    func_ldbc = lambda fm : 10 * log10((2 * pi) ** 2 / (12 * fref) * 
+    func_ldbc = lambda fm : 10 * log10((2 * pi) ** 2 / (12 * fref) *
         (2 * sin(pi * fm / fref)) ** (2 * (m - 1)) / n ** 2)
     ldbc = Pnoise.with_function(func_ldbc, label='sdm')
-    return ldbc 
+    return ldbc
 
 
 """
@@ -251,7 +251,7 @@ import unittest
 
 class Test_sdmod(unittest.TestCase):
     def test_mean_value(self):
-        
+
         from numpy.testing import assert_almost_equal
         import numpy.random as rnd
         

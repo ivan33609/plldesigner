@@ -133,8 +133,6 @@ class Pnoise(object):
         Add extra points to a noise object
         """
         assert len(fx) == len(ldbc), 'arrays have to be of equal lenght'
-        #self._fmi = np.copy(self._fm)
-        #self._ldbci = np.copy(self.ldbc)
 
         ldbc = np.array(ldbc)
         # Concatenate  vectors
