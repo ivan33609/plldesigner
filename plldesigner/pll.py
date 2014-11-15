@@ -179,7 +179,7 @@ Tests
 """
 import unittest
 
-class Test_pnoise(unittest.TestCase):
+class Test_pll(unittest.TestCase):
     def test_loopcalc(self):
         from numpy.testing import  assert_almost_equal
         myAnalogPLL=AnalogPLL(3, 521.8e+06, Navg=55.22, prescaler=2, plltype='Integer')
