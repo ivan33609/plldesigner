@@ -31,7 +31,7 @@ class Pnoise(object):
 
     """
 
-    def __init__(self, fm, pnfm, label=None, units='dBc/Hz'):
+    def __init__(self, fm, pnfm, fc=1, label=None, units='dBc/Hz'):
         """
         Phase noise from separate vectors for fm and phase noise
 
@@ -41,6 +41,8 @@ class Pnoise(object):
             Offset frequency vector
         pn : array_like
             Phase noise values
+        fc : float
+            Carrier frequency (Hz)
 
         Returns
         -------
@@ -49,6 +51,7 @@ class Pnoise(object):
         self.units = units
         self.label = label
         self._fm = np.asarray(fm)
+        self._fc = fc
 
         # values for point slope approximation
         self.slopes = None
@@ -73,6 +76,17 @@ class Pnoise(object):
         fi = np.asarray(fi)
         self._fm = fi
         self.ldbc = self.func_ldbc(fi)
+
+    @property
+    def fc(self):
+        return self._fc
+
+    @fc.setter
+    def fc(self, fc):
+        assert isinstance(fc, (float, int))
+        self._ldbc = self._ldbc + 20*np.log10(fc/self._fc)
+        self._ldbci = np.copy(self.ldbc)
+        self._fc = fc
 
 
     @classmethod
