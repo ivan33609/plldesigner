@@ -6,6 +6,7 @@ A Class to work with phase noise frequency data points
 from __future__ import (absolute_import, division, print_function)
 import numpy as np
 from numpy import log10, sqrt, sum
+from numpy.random import randn
 import matplotlib.pyplot as plt
 import scipy.interpolate as intp
 
@@ -195,7 +196,8 @@ class Pnoise(object):
         fi = np.asarray(fi)
         slopes = np.asarray(slopes)
         ldbc_fi = self.func_ldbc(fi)
-        pnoise_class = Pnoise.with_points_slopes(fi, ldbc_fi, slopes, label=label)
+        pnoise_class = Pnoise.with_points_slopes(fi, ldbc_fi, slopes,
+                                                 label=label)
         return pnoise_class
 
 
@@ -348,6 +350,37 @@ class Pnoise(object):
         ldbc = self.func_ldbc(fi)
         return ldbc
 
+    def generate_samples(self, npoints, fs):
+        """ Generate points using the current power spectral density
+        Parameters
+        ---------
+        npoints : int
+            Define the number of points to be used
+        fs : float
+            Sampling frequency
+
+        Returns
+        -------
+        phi_t : array_like
+            points with the obj noise power spectral density
+        """
+        assert isinstance(npoints, int)
+        assert isinstance(fs, (float, int))
+        fm = np.linspace( fs/npoints, fs/2, npoints)
+        # Resample the pnoise with the nuew grid
+        pnoise_fm = self.create_new(fm)
+        dfm = fm[1] - fm[0]
+        # Create noise with unitary power
+        awgn = (sqrt(0.5) * (randn(npoints) + 1j * randn(npoints)))
+        # Color the power of the noise with the right spectrum
+        P = 2 * 10 ** (pnoise_fm.ldbc / 10)
+        X = 2 * (npoints - 1) * sqrt(dfm * P ) * awgn
+        X = np.r_[0, X, X.conj()[::-1]]
+        # Create the time domain samplex
+        phi_t = np.fft.ifft(X)
+        return phi_t
+
+
 
 def __pnoise_interp1d__(fm, ldbc_fm, fi):
     """ Interpolate the phase noise assuming logarithmic linear behavior
@@ -414,9 +447,24 @@ def __pnoise_point_slopes__(fm, ldbc_fm, slopes, fi):
 Testing
 """
 from numpy.testing import assert_almost_equal
+import scipy.signal as sig
 import unittest
 
 class Test_pnoise(unittest.TestCase):
+
+    def test_generate_samples(self):
+        pnobj = Pnoise.with_points_slopes([1e5, 1e6, 1e9],
+                                          [-80,-100,-120],
+                                          [-30,-20,0])
+        npoints = 2 ** 16
+        fs = 500e6
+        phi_t = pnobj.generate_samples(npoints, fs)
+        f, pxx = sig.welch(phi_t, fs, window='blackman', nperseg=2**8)
+        ldbc_noise = 10 * np.log10(pxx / 2)
+        pnobj.fm = f[1:]
+        error = np.max(np.abs((pnobj.ldbc - ldbc_noise[1:]) / pnobj.ldbc * 100))
+        assert error < 2.5
+
     def test_fc_settler(self):
         fm = np.array([1e3, 1e5, 1e7])
         ldbc = 10 * np.log10(1 / (fm * fm))
@@ -426,7 +474,8 @@ class Test_pnoise(unittest.TestCase):
 
     def test_interp1d_class(self, plot=False):
         fm = np.array([1e3, 1e5, 1e7])
-        lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
+        lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)),
+                            label='Lorentzian')
         val = lorentzian.interp1d(1e6)
         assert_almost_equal(val, -120, 4)
         if plot:
@@ -437,7 +486,8 @@ class Test_pnoise(unittest.TestCase):
     def test__init__(self, plot=False):
         # Test __init__
         fm = np.logspace(3, 9, 100)
-        lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
+        lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)),
+                            label='Lorentzian')
         white = Pnoise(fm, -120 * np.ones(fm.shape), label='white')
         added = white + lorentzian
         added.label = "addition"
