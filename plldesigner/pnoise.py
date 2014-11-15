@@ -84,7 +84,7 @@ class Pnoise(object):
     @fc.setter
     def fc(self, fc):
         assert isinstance(fc, (float, int))
-        self._ldbc = self._ldbc + 20*np.log10(fc/self._fc)
+        self.ldbc = self.ldbc + 20*np.log10(fc/self._fc)
         self._ldbci = np.copy(self.ldbc)
         self._fc = fc
 
@@ -417,6 +417,13 @@ from numpy.testing import assert_almost_equal
 import unittest
 
 class Test_pnoise(unittest.TestCase):
+    def test_fc_settler(self):
+        fm = np.array([1e3, 1e5, 1e7])
+        ldbc = 10 * np.log10(1 / (fm * fm))
+        lorentzian = Pnoise(fm, ldbc, fc=1e9, label='Lorentzian')
+        lorentzian.fc = 10e9
+        assert_almost_equal(lorentzian.ldbc, ldbc + 20*log10(10e9/1e9))
+
     def test_interp1d_class(self, plot=False):
         fm = np.array([1e3, 1e5, 1e7])
         lorentzian = Pnoise(fm, 10 * np.log10(1 / (fm * fm)), label='Lorentzian')
