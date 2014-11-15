@@ -13,8 +13,8 @@ setup(
     
     version='0.1.1',
     
-    py_modules=['plldesigner.sdmod','plldesigner.pll',
-                  'plldesigner.pnoise'],
+    py_modules=['plldesigner.sdmod', 'plldesigner.pll',
+                'plldesigner.pnoise'],
     
     description='Python toolkit for PLLs design and phase noise analysis',
     
