@@ -24,7 +24,7 @@ class Pnoise(object):
         Phase noise values
 
     """
- 
+
 
     def __init__(self, fm, pnfm, fc=1, label=None, units='dBc/Hz'):
         """
@@ -59,13 +59,12 @@ class Pnoise(object):
             "rad/sqrt(Hz)": lambda x: 10 * log10(x ** 2 / 2),
             "rad**/Hz": lambda x: 10 * log10(x / 2),
         }
-        
-        self.ldbc = _funits[units](np.asarray(pnfm))
 
-        # keep the original interpolation data
-        self._fmi = np.copy(self._fm)
-        self._ldbci = np.copy(self.ldbc)
 
+        # This elements are always kept
+        self._fmi = np.copy(np.asarray(self._fm))
+        self._ldbci = _funits[units](np.asarray(pnfm))
+        self._fci = fc
         self.func_ldbc = lambda fx:\
             Pnoise._pnoise_interp1d(self._fmi, self._ldbci, fx)
 
@@ -77,7 +76,6 @@ class Pnoise(object):
     def fm(self, fi):
         fi = np.asarray(fi)
         self._fm = fi
-        self.ldbc = self.func_ldbc(fi)
 
     @property
     def fc(self):
@@ -86,13 +84,19 @@ class Pnoise(object):
     @fc.setter
     def fc(self, fc):
         assert isinstance(fc, (float, int))
-        self.ldbc = self.ldbc + 20*np.log10(fc/self._fc)
-        self._ldbci = np.copy(self.ldbc)
         self._fc = fc
 
+    @property
+    def ldbc(self):
+        # Return ldbc interpolated and scalled
+        if not len(self._fm)==1 :
+            ldbc_r = self.func_ldbc(self._fm)+20*log10(self._fc/self._fci)
+        else :
+            ldbc_r = self._ldbci
+        return ldbc_r
 
     @classmethod
-    def with_function(cls, func, label=None):
+    def with_function(cls, func, fc=1, label=None):
         """
         Class method for manipulating phase noise values
 
@@ -109,13 +113,13 @@ class Pnoise(object):
         pnoise : Pnoise
 
         """
-        pnoise_class = cls(None, None, label=label, units='dBc/Hz')
+        pnoise_class = cls(None, None, fc=fc, label=label, units='dBc/Hz')
         pnoise_class.func_ldbc = func
         pnoise_class.label = label
         return pnoise_class
 
     @classmethod
-    def with_points_slopes(cls, fm, ldbc_fm, slopes, label=None):
+    def with_points_slopes(cls, fm, ldbc_fm, slopes, fc=1, label=None):
         """
         Phase noise with point and slope
 
@@ -138,7 +142,7 @@ class Pnoise(object):
         fm = np.asarray(fm)
         ldbc_fm = np.asarray(ldbc_fm)
         slopes = np.asarray(slopes)
-        pnoise_class = cls(fm, ldbc_fm, label=label, units='dBc/Hz')
+        pnoise_class = cls(fm, ldbc_fm, fc=fc, label=label, units='dBc/Hz')
         pnoise_class.slopes = slopes
         pnoise_class.func_ldbc = lambda fi: Pnoise._pnoise_point_slopes(
             fm, ldbc_fm, slopes, fi)
@@ -161,7 +165,6 @@ class Pnoise(object):
         # Update the object
         ix = np.argsort(fi_x)
         self._fm = fi_x[ix]
-        self.ldbc = ldbc_x[ix]
         # change the interpolation values
         self._fmi = np.copy(fi_x[ix])
         self._ldbci = np.copy(ldbc_x[ix])
@@ -263,7 +266,7 @@ class Pnoise(object):
             The integrated phase in rad
         """
 
-        def gardner(ldbc_ix, fm_ix):
+        def _gardner(ldbc_ix, fm_ix):
             """
             Gardner integration method
 
@@ -297,7 +300,7 @@ class Pnoise(object):
                 )
             return sqrt(sum(bi))
 
-        def trapz(ldbc_ix, fm_ix):
+        def _trapz(ldbc_ix, fm_ix):
             """
             Trapezoidal integration of the phase noise
 
@@ -326,9 +329,9 @@ class Pnoise(object):
         fi = self.fm[ix]
         ldbc_fi = self.ldbc[ix]
         if method == 'trapz':
-            self.phi_out = trapz(ldbc_fi, fi)
+            self.phi_out = _trapz(ldbc_fi, fi)
         elif method == 'Gardner':
-            self.phi_out = gardner(ldbc_fi, fi)
+            self.phi_out = _gardner(ldbc_fi, fi)
         else:
             raise ValueError('Integrating method not implemented')
         return self.phi_out
@@ -453,6 +456,17 @@ import unittest
 
 class Test_pnoise(unittest.TestCase):
 
+    def test_errors(self):
+        pnobj = Pnoise(np.array([1e6]), np.array([-92]))
+        pnobj.plot()
+
+    def test_fm_fc_scaling(self):
+        pnobj = Pnoise([1e4, 1e6, 1e8],[-80,-100,-120], fc=2e9)
+        pnobj.fc = 20e9
+        assert np.all(pnobj.ldbc == [-60,-80,-100])
+        pnobj.fm = [1e5, 1e6, 1e7]
+        assert np.all(pnobj.ldbc == [-70,-80,-90])
+
     def test_generate_samples(self):
         pnobj = Pnoise.with_points_slopes([1e5, 1e6, 1e9],
                                           [-80,-100,-120],
@@ -554,7 +568,6 @@ class Test_pnoise(unittest.TestCase):
         # Check deep the interpolation
         obj.fm = [1e2, 1e6, 1.1e5, 7e7]
         obj.fm = [1e3, 1e6, 1.1e5,7e7, 1e10]
-
 
 if __name__ == "__main__":
     unittest.main()

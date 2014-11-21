@@ -240,7 +240,7 @@ def L_mash_dB(m, fref, n=1.0):
     """
     func_ldbc = lambda fm : 10 * log10((2 * pi) ** 2 / (12 * fref) *
         (2 * sin(pi * fm / fref)) ** (2 * (m - 1)) / n ** 2)
-    ldbc = Pnoise.with_function(func_ldbc, label='sdm')
+    ldbc = Pnoise.with_function(func_ldbc, fc=fref, label='sdm')
     return ldbc
 
 
@@ -254,7 +254,7 @@ class Test_sdmod(unittest.TestCase):
 
         from numpy.testing import assert_almost_equal
         import numpy.random as rnd
-        
+
         # Test order one assert the mean value
         floatnum = rnd.rand() * np.ones(100000)
 
