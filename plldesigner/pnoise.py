@@ -170,13 +170,23 @@ class Pnoise(object):
         self._ldbci = np.copy(ldbc_x[ix])
 
 
-    def create_new(self, fx):
+    def create_new(self, fx, label=None):
         """
         Return a Pnoise clase with with different frequency sampling
         """
-        pnoise_class = Pnoise(fx, self.func_ldbc(fx), label=self.label)
+        pnoise_class = Pnoise(fx, self.func_ldbc(fx), label=label)
         return pnoise_class
 
+    def at_fc(self, fc, label=None):
+        """
+        Return a Pnoise clase with with different frequency sampling
+        """
+        if not label:
+          label = self.label
+        fm = self.fm
+        ldbc = self.ldbc + 20*log10(fc/self._fc)
+        pnoise_class = Pnoise(fm, ldbc, fc=fc, label=label, units='dBc/Hz')
+        return pnoise_class
 
     def asymptotic_model(self, fi, slopes, label=None):
         """
@@ -216,6 +226,8 @@ class Pnoise(object):
         """
         Addition of though pnoise components
         """
+        assert self.fc ==other.fc,\
+          'The two noise sources must have the same frequency reference!'
         try:
             phi2fm = 2 * 10 ** (self.ldbc / 10)
             phi2fm_other = 2 * 10 ** (other.ldbc / 10)
@@ -224,7 +236,7 @@ class Pnoise(object):
             raise ValueError(
                 'Additions is only allowed with vector of equal size'
                 )
-        add_noise = Pnoise(self.fm, ldbc_add)
+        add_noise = Pnoise(self.fm, ldbc_add, fc=other.fc)
         return add_noise
 
     def __mul__(self, mult):
@@ -455,6 +467,11 @@ import scipy.signal as sig
 import unittest
 
 class Test_pnoise(unittest.TestCase):
+
+    def test_at_fc(self):
+      pnobj = Pnoise([1e4, 1e6, 1e8],[-80,-100,-120], fc=2e9)
+      pnob2 = pnobj.at_fc(20e9)
+      assert np.all(pnob2.ldbc == [-60,-80,-100])
 
     def test_errors(self):
         pnobj = Pnoise(np.array([1e6]), np.array([-92]))
