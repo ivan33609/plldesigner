@@ -166,6 +166,28 @@ class AnalogPLL(object):
         self.filter_vals['C3'] / 1e-12)
         return str_val
 
+    def add_noise_sources(self,fm, pn_inputs=[], pn_outputs=[]):
+        # Calculated the transfer functions
+        Hfm,Gfm,Tfm = self.calcTF(fm)
+        # All the noise sources use the same offset
+        for pn_elem in pn_inputs+pn_outputs:
+            pn_elem.fm = fm
+        # Calcualte the noise of the filter
+        phi2_filter = self.filter_vn2(fm)*(self.Kvco/fm)**2
+        pn_filter = Pnoise(fm,phi2_filter,label='filter',units='rad**/Hz')
+        pn_filter_colored = pn_filter*(np.abs(Tfm)**2)
+        # Calculate the noise of the other sources
+        pn_out_colored = [pn_elm*(np.abs(Tfm)**2) for pn_elm in pn_outputs]
+        pn_out_colored.append(pn_filter_colored)
+        pn_in_colored  = [pn_elm*(np.abs(Hfm)**2) for pn_elm in pn_inputs]
+
+        pn_total = pn_out_colored[0]
+        for pn_elem in pn_out_colored[1:]:
+            pn_total += pn_elem
+        for pn_elem in pn_in_colored:
+            pn_total += pn_elem
+        return pn_total, pn_in_colored, pn_out_colored
+
 
 class AnalogPLLDict(AnalogPLL):
     def __init__(self, _dict):
@@ -191,7 +213,28 @@ class Test_pll(unittest.TestCase):
         assert_almost_equal(myAnalogPLL.filter_vals['Icp'], 516.691e-6, 4)
         assert_almost_equal(myAnalogPLL.filter_vals['R1'], 1.3864303e3, 4)
         assert_almost_equal(myAnalogPLL.filter_vals['R2'], 1.28688908e3, 4)
+    def test_add_noise_sources(self):
+        from numpy.testing import  assert_almost_equal
+        import matplotlib.pyplot as plt
+        myAnalogPLL=AnalogPLL(3, 521.8e+06, Navg=10, prescaler=2, plltype='Integer')
+        myAnalogPLL.loopcalc(1e6, 60.0, -130.0, 1e6, 0.1, 300)
+        pinput = [Pnoise([1e3, 1e6, 1e9],[-140, -140, -140], label='input', fc=48e6)]
+        poutput = [Pnoise([1e3, 1e6, 1e9],[-70, -120, -180], label='VCO', fc=480e6)]
 
+        fm = np.logspace(4,8,100)
+        pn_total, pn_in_colored, pn_out_colored = \
+            myAnalogPLL.add_noise_sources(fm, pn_inputs=pinput, pn_outputs=poutput)
+        assert_almost_equal(pn_total.interp1d(1e8), -160, 2)
+        assert_almost_equal(pn_total.interp1d(1e4), -120, 2)
+        """
+        pn_total.plot()
+        [pn.plot() for pn in pn_in_colored]
+        [pn.plot() for pn in pn_out_colored]
+        plt.legend
+        plt.grid(True)
+        plt.show()
+        print(pn_out_colored[0].fc)
+        """
 
 if __name__ == "__main__":
     unittest.main()
