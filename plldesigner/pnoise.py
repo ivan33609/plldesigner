@@ -226,8 +226,7 @@ class Pnoise(object):
         """
         Addition of though pnoise components
         """
-        assert self.fc ==other.fc,\
-          'The two noise sources must have the same frequency reference!'
+
         try:
             phi2fm = 2 * 10 ** (self.ldbc / 10)
             phi2fm_other = 2 * 10 ** (other.ldbc / 10)
@@ -236,7 +235,10 @@ class Pnoise(object):
             raise ValueError(
                 'Additions is only allowed with vector of equal size'
                 )
-        add_noise = Pnoise(self.fm, ldbc_add, fc=other.fc)
+        if self.fc ==other.fc:
+            add_noise = Pnoise(self.fm, ldbc_add, fc=self.fc)
+        else:
+            add_noise = Pnoise(self.fm, ldbc_add, fc=1)
         return add_noise
 
     def __mul__(self, mult):
@@ -253,7 +255,7 @@ class Pnoise(object):
                 try:
                     mult_noise = Pnoise(
                         self.fm, self.ldbc + 10 * log10(mult),
-                        label=self.label)
+                        fc=self.fc, label=self.label)
                 except ValueError:
                     raise ValueError('Vectors are not of the same length')
             return mult_noise
