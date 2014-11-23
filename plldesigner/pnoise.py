@@ -471,13 +471,10 @@ import unittest
 class Test_pnoise(unittest.TestCase):
 
     def test_at_fc(self):
-      pnobj = Pnoise([1e4, 1e6, 1e8],[-80,-100,-120], fc=2e9)
-      pnob2 = pnobj.at_fc(20e9)
-      assert np.all(pnob2.ldbc == [-60,-80,-100])
+        pnobj = Pnoise([1e4, 1e6, 1e8],[-80,-100,-120], fc=2e9)
+        pnob2 = pnobj.at_fc(20e9)
+        assert np.all(pnob2.ldbc == [-60,-80,-100])
 
-    def test_errors(self):
-        pnobj = Pnoise(np.array([1e6]), np.array([-92]))
-        pnobj.plot()
 
     def test_fm_fc_scaling(self):
         pnobj = Pnoise([1e4, 1e6, 1e8],[-80,-100,-120], fc=2e9)
