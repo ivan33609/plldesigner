@@ -247,6 +247,7 @@ class Test_pll(unittest.TestCase):
         assert_almost_equal(myAnalogPLL.filter_vals['Icp'], 516.691e-6, 4)
         assert_almost_equal(myAnalogPLL.filter_vals['R1'], 1.3864303e3, 4)
         assert_almost_equal(myAnalogPLL.filter_vals['R2'], 1.28688908e3, 4)
+        
     def test_add_noise_sources(self):
         from numpy.testing import  assert_almost_equal
         import matplotlib.pyplot as plt
@@ -279,16 +280,6 @@ class Test_pll(unittest.TestCase):
 
             # The open loop tansfer function H
 
-
-        """
-        pn_total.plot()
-        [pn.plot() for pn in pn_in_colored]
-        [pn.plot() for pn in pn_out_colored]
-        plt.legend
-        plt.grid(True)
-        plt.show()
-        print(pn_out_colored[0].fc)
-        """
 
 if __name__ == "__main__":
     unittest.main()
