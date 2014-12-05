@@ -216,10 +216,14 @@ class Pnoise(object):
 
 
     def plot(self, *args, **kwargs):
+        if 'label' in kwargs.keys():
+            ax = plt.semilogx(self.fm, self.ldbc, *args, **kwargs)
+        else:
+            ax = plt.semilogx(self.fm, self.ldbc, label=self.label,
+                              *args, **kwargs)
         plt.ylabel('$\mathcal{L}$(dBc/Hz)')
         plt.xlabel('$f_m$(Hz)')
-        ax = plt.semilogx(self.fm, self.ldbc, label=self.label, *args,
-                          **kwargs)
+
         return ax
 
     def __add__(self, other):
@@ -250,7 +254,8 @@ class Pnoise(object):
         else:
             if type(mult) in (int, float):
                 mult_noise = Pnoise(
-                    self.fm, self.ldbc + 10 * log10(mult), label=self.label)
+                    self.fm, self.ldbc + 10 * log10(mult),
+                    fc=self.fc, label=self.label)
             else:
                 try:
                     mult_noise = Pnoise(
