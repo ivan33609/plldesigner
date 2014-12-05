@@ -8,7 +8,9 @@ from __future__ import (absolute_import, division, print_function)
 import numpy as np
 from numpy import sqrt, log10, tan
 import scipy.constants as k
+import scipy.signal.ltisys as lti
 from .pnoise import Pnoise
+
 
 class AnalogPLL(object):
     def __init__(self, order, Kvco, Navg=1.0, prescaler=1, plltype='integer',
@@ -80,6 +82,38 @@ class AnalogPLL(object):
             R2 = tp2 / C3
             self.filter_vals = {'C1': C1, 'C2':C2, 'C3':C3, 'R1':R1, 'R2':R2,
                                 'Icp': Icp}
+    def lti(self):
+        Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
+        if self.order ==2:
+            C1, C2, R1, Icp = (fvals['C1'], fvals['C2'], fvals['R1'],
+                fvals['Icp'])
+            tp = R1 * C1 * C2 / (C1 + C2)
+            tz = R1 * C1
+            Kf = 1 / (C1 + C2)
+            Kpfd = Icp / 2 / k.pi
+            K = Kf * Kpfd / Navg * 2 * k.pi * Kvco
+            G = lti.lti([K*tz, K], [tp, 1, 0, 0])
+            T = lti.lti([tp,1, 0, 0],[tp, 1, K*tz, K])
+            H = lti.lti([Navg*K*tz, Navg*K],[tp, 1, K*tz, K])
+        if self.order ==3:
+            Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
+            C1, C2, C3, R1, R2, Icp = (fvals['C1'], fvals['C2'], fvals['C3'],
+                fvals['R1'], fvals['R2'],fvals['Icp'])
+            tz = R1 * C1
+            Kf = 1 / (C1 + C2 + C3)
+            a2 = C1 * C2 * C3 * R1 * R2 * Kf
+            a1 = (C1 * C2 * R1 + C1 * C3 * R1 + C1 * C3 * R2 + C2 * C3 * R2) * Kf
+            a0 = 1
+            Kpfd = Icp / 2 / k.pi
+            K = Kf * Kpfd / Navg * 2 * k.pi * Kvco
+            G = lti.lti([K*tz, K], [a2, a1, a0, 0, 0])
+            T = lti.lti([a2, a1, a0, 0, 0], [a2, a1, a0, K*tz, K])
+            H = lti.lti( [Navg*K*tz, Navg*K],  [a2, a1, a0, K*tz, K])
+        if self.order not in(2, 3):
+            print('order not implemented, the noise can not be calculated')
+            raise
+        return G, T, H
+
 
     def calcTF(self, fm):
         s = 2 * k.pi * fm * 1j
@@ -226,6 +260,26 @@ class Test_pll(unittest.TestCase):
             myAnalogPLL.add_noise_sources(fm, pn_inputs=pinput, pn_outputs=poutput)
         assert_almost_equal(pn_total.interp1d(1e8), -160, 2)
         assert_almost_equal(pn_total.interp1d(1e4), -120, 2)
+
+    def test_lti(self):
+        from numpy.testing import  assert_almost_equal
+        import matplotlib.pyplot as plt
+
+        # Create a PLL and obtain the lti system
+        for order in [2, 3]:
+            myAnalogPLL=AnalogPLL(order, 521.8e+06, Navg=10, prescaler=2, plltype='Integer')
+            myAnalogPLL.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
+            G, T, H = myAnalogPLL.lti()
+
+            # The open loop transfer function G
+            f = np.linspace(0.95e6, 1.05e6, num=100)
+            w, mag, phase = G.bode(w=2*k.pi*f)
+            ix = np.max(np.where(mag>=0))
+            assert_almost_equal(f[ix]/1e6, 1, 1)
+
+            # The open loop tansfer function H
+
+
         """
         pn_total.plot()
         [pn.plot() for pn in pn_in_colored]
