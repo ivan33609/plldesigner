@@ -1,5 +1,6 @@
 """
 Implementation of a sigma delta modulator and the functions related
+To do generalize the algorithm
 """
 
 import numpy as np
@@ -24,7 +25,7 @@ class SDModulator(object):
         """ """
         self.modtype = modtype
         func = {'mash': gen_mash}
-        self.seq, self.cycles = func[modtype](*arg, **argk)
+        self.seq, self.period = func[modtype](*arg, **argk)
 
     def plotseq(self, *arg, **argk):
         xval = np.arange(len(self.seq))
@@ -52,8 +53,9 @@ def gen_mash(order, n, k, init=()):
 
     Returns
     -------
-    sd :
-    cycles : int
+    sd : array
+        sigma delta modulator sequence
+    period : int
         Period of the sequence
 
     Commentaries
@@ -71,38 +73,42 @@ def gen_mash(order, n, k, init=()):
     # Modulator of order 1
     _maxvalue = 2 ** n - 1
     L = len(k)
+    
+    if len(init) == 0:
+        init = [0]*order
+    sd = [0]*L
+
+    # Modulator of order 1        
     if order == 1:
         # initialize the registers
-        overflow0 = zeros(L, dtype=np.int)
-        overflow0[0] = 1
-        state0 = zeros(L, dtype=np.int)
-        if len(init) == 1:
-            state0[0] = init[0]
-        for j in range(L):
+        overflow0 = [0]*L
+        state0 = [0]*L
+        # initialize the state
+        state0[0] = init[0]
+        for j in range(1, L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
                 state0[j] -= _maxvalue + 1
-        sd = overflow0
-        cycles = np.where(state0 == 0)[0]
+            sd[j] = overflow0[j]
+        cycles, = np.where(np.asarray(state0) == init[0])
         if len(cycles) > 1:
-            cycles = cycles[1] - cycles[0]
+            period = cycles[1] - cycles[0]
         else:
-            cycles = -1
+            period = None
+
 
     # Modulator of order 2
     elif order == 2:
         # initialize the registers
-        state0 = zeros(L, dtype=np.int)
-        state1 = zeros(L, dtype=np.int)
-        overflow0 = zeros(L, dtype=np.int)
-        overflow1 = zeros(L, dtype=np.int)
-        if len(init) == 2:
-            state0[0] = init[0]
-            state1[0] = init[1]
+        state0, state1 = [0]*L,[0]*L
+        overflow0, overflow1 = [0]*L, [0]*L
+        
+        # initialize the state
+        state0[0], state1[0] = init
 
         # Implement the SDM
-        for j in range(L):
+        for j in range(1, L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -111,31 +117,25 @@ def gen_mash(order, n, k, init=()):
             if state1[j] > _maxvalue:
                 overflow1[j] = 1
                 state1[j] -= _maxvalue + 1
-        sd = overflow0 + overflow1 - np.hstack(([0], overflow1[:-1]))
-        state = state0 + state1
-        cycles = np.where(state == 0)[0]
+            sd[j] = overflow0[j] + overflow1[j] - overflow1[j-1]
+        state = np.vstack((state0, state1))
+        cycles, = np.where((state[0,:]==init[0]) & (state[1,:]==init[1]))
         if len(cycles) > 1:
-            cycles = cycles[1] - cycles[0]
+            period = cycles[1] - cycles[0]
         else:
-            cycles = -1
+            period = None
 
     # Modulator of order 3
     elif order == 3:
         # initialize the registers
-        state0 = zeros(L, dtype=np.int)
-        state1 = zeros(L, dtype=np.int)
-        state2 = zeros(L, dtype=np.int)
-        if len(init) == 3:
-            state0[0] = init[0]
-            state1[0] = init[1]
-            state2[0] = init[2]
-        overflow0 = zeros(L, dtype=np.int)
-        overflow0[0] = 1
-        overflow1 = zeros(L, dtype=np.int)
-        overflow2 = zeros(L, dtype=np.int)
+        state0, state1, state2 = [0]*L,[0]*L, [0]*L
+        overflow0, overflow1, overflow2 = [0]*L, [0]*L, [0]*L
+        
+        #initaitlize the state
+        state0[0], state1[0], state2[0] = init
 
         # Implement the SDM
-        for j in range(L):
+        for j in range(1, L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -150,36 +150,30 @@ def gen_mash(order, n, k, init=()):
             if state2[j] > _maxvalue:
                 overflow2[j] = 1
                 state2[j] -= _maxvalue + 1
-        sd = overflow0
-        sd += overflow1 - np.hstack(([0], overflow1[:-1]))
-        sd += overflow2 - 2 * np.hstack(([0], overflow2[:-1]))
-        sd += np.hstack(([0], [0], overflow2[:-2]))
-
-        state = state0 + state1 + state2
-        cycles = np.where(state == 0)[0]
+            sd[j] = overflow0[j]
+            sd[j] += overflow1[j] - overflow1[j-1]
+            sd[j] += overflow2[j] - 2 * overflow2[j-1]
+            sd[j] += overflow2[j-2]
+            
+        state = np.vstack((state0, state1, state2))
+        cycles, = np.where((state[0,:]==init[0]) & (state[1,:]==init[1]) &
+                            (state[2,:]==init[2]))
         if len(cycles) > 1:
-            cycles = cycles[1] - cycles[0]
+            period = cycles[1] - cycles[0]
         else:
-            cycles = -1
+            period = None
 
     elif order == 4:
         # initialize the registers
-        state0 = zeros(L, dtype=np.int)
-        state1 = zeros(L, dtype=np.int)
-        state2 = zeros(L, dtype=np.int)
-        state3 = zeros(L, dtype=np.int)
-        if len(init) == 4:
-            state0[0] = init[0]
-            state1[0] = init[1]
-            state2[0] = init[2]
-            state3[0] = init[4]
-        overflow0 = zeros(L, dtype=np.int)
-        overflow0[0] = 1
-        overflow1 = zeros(L, dtype=np.int)
-        overflow2 = zeros(L, dtype=np.int)
-        overflow3 = zeros(L, dtype=np.int)
+        state0, state1, state2, state3 = [0]*L,[0]*L, [0]*L, [0]*L
+        overflow0, overflow1 = [0]*L, [0]*L
+        overflow2, overflow3 = [0]*L, [0]*L
+        
+        #initaitlize the state
+        state0[0], state1[0], state2[0], state3[0] = init
+        
         # Implement the SDM
-        for j in range(L):
+        for j in range(1, L):
             state0[j] = state0[j - 1] + k[j - 1]
             if state0[j] > _maxvalue:
                 overflow0[j] = 1
@@ -198,24 +192,25 @@ def gen_mash(order, n, k, init=()):
             if state3[j] > _maxvalue:
                 overflow3[j] = 1
                 state3[j] -= _maxvalue + 1
+                
+            sd[j] = overflow0[j]
+            sd[j] += overflow1[j] - overflow1[j-1]
+            sd[j] += overflow2[j] - 2 * overflow2[j-1]
+            sd[j] += overflow2[j-2]
+            sd[j] += overflow3[j] - 3 * overflow3[j-1]
+            sd[j] += 3 * overflow3[j-2]
+            sd[j] -= overflow3[j-3]
 
-        sd = (overflow0 +
-              overflow1 - np.hstack(([0], overflow1[:-1])) +
-              overflow2 - 2 * np.hstack(([0], overflow2[:-1])) +
-              np.hstack(([0], [0], overflow2[:-2])) +
-              overflow3 - 3 * np.hstack(([0], overflow3[:-1])) +
-              3 * np.hstack(([0], [0], overflow3[:-2])) -
-              np.hstack(([0], [0], [0], overflow3[:-3]))
-              )
-
-        state = state0 + state1 + state2 + state3
-        cycles = np.where(state == 0)[0]
+            
+        state = np.vstack((state0, state1, state2, state3))
+        cycles, = np.where((state[0,:]==init[0]) & (state[1,:]==init[1]) &
+                            (state[2,:]==init[2]) & (state[3,:]==init[3]))
         if len(cycles) > 1:
-            cycles = cycles[1] - cycles[0]
+            period = cycles[1] - cycles[0]
         else:
-            cycles = -1
+            period = None
 
-    return sd, cycles
+    return np.asarray(sd), period
 
 
 def L_mash_dB(m, fref, n=1.0):
@@ -259,23 +254,35 @@ class Test_sdmod(unittest.TestCase):
         floatnum = rnd.rand() * np.ones(100000)
 
         # order one
-        sequence, cycles = gen_mash(1, 19, (floatnum * 2 ** 19).astype(int))
+        sequence, period = gen_mash(1, 19, (floatnum * 2 ** 19).astype(int))
         assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+        assert period == None
+        sequence, period = gen_mash(1, 19, 0.25 * np.ones(1000) * 2 ** 19)
+        assert period == 4
         # order two
-        sequence, cycles = gen_mash(2, 19, (floatnum * 2 ** 19).astype(int))
+        sequence, period = gen_mash(2, 19, (floatnum * 2 ** 19).astype(int))
         assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+        assert period == None
+        sequence, period = gen_mash(2, 19, 0.25 * np.ones(1000) * 2 ** 19)
+        assert period == 8
 
         # order three
-        sequence, cycles = gen_mash(3, 19, (floatnum * 2 ** 19).astype(int))
+        sequence, period = gen_mash(3, 19, (floatnum * 2 ** 19).astype(int))
         assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+        assert period == None
+        sequence, period = gen_mash(3, 19, 0.25 * np.ones(1000) * 2 ** 19)
+        assert_almost_equal(sequence.mean(), 0.25, 2)
+        assert period == 8
+        sequence, period = gen_mash(3, 19, 0.25 * np.ones(1000) * 2 ** 19, init=(1,0,0))
+        assert_almost_equal(sequence.mean(), 0.25, 2)
+        assert perod == None
 
-        # order three
-        sequence, cycles = gen_mash(3, 19, 0.25 * np.ones(100000) * 2 ** 19)
-        assert_almost_equal(sequence.mean(), 0.25, 4)
-
-        # order three
-        sequence, cycles = gen_mash(4, 19, 0.25 * np.ones(100000) * 2 ** 19)
-        assert_almost_equal(sequence.mean(), 0.25, 4)
+        # order four
+        sequence, period = gen_mash(4, 19, (floatnum * 2 ** 19).astype(int))
+        assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
+        assert period == None
+        sequence, period = gen_mash(4, 19, 0.25 * np.ones(1000) * 2 ** 19)
+        assert period == 16
 
         # Using the class the test is done as:
         sd_mash = SDModulator('mash', 3, 19,
