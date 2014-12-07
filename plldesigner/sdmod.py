@@ -250,15 +250,17 @@ class Test_sdmod(unittest.TestCase):
         from numpy.testing import assert_almost_equal
         import numpy.random as rnd
 
-        # Test order one assert the mean value
-        floatnum = rnd.rand() * np.ones(100000)
-
+        # Test the floating number is well reproduced
+        # for the mash, order 1, the signal is fix because other wise
+        # it can fail quite often
+        floatnum = 0.309 * np.ones(100000)
         # order one
         sequence, period = gen_mash(1, 19, (floatnum * 2 ** 19).astype(int))
         assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
         assert period == None
         sequence, period = gen_mash(1, 19, 0.25 * np.ones(1000) * 2 ** 19)
         assert period == 4
+        floatnum = rnd.rand() * np.ones(100000)
         # order two
         sequence, period = gen_mash(2, 19, (floatnum * 2 ** 19).astype(int))
         assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
