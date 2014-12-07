@@ -275,7 +275,7 @@ class Test_sdmod(unittest.TestCase):
         assert period == 8
         sequence, period = gen_mash(3, 19, 0.25 * np.ones(1000) * 2 ** 19, init=(1,0,0))
         assert_almost_equal(sequence.mean(), 0.25, 2)
-        assert perod == None
+        assert period == None
 
         # order four
         sequence, period = gen_mash(4, 19, (floatnum * 2 ** 19).astype(int))
