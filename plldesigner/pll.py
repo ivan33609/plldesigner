@@ -34,7 +34,8 @@ class AnalogPLL(object):
         Lvco_fr : float
             Frequency where the  Lvco is specified
         DL : float
-            Ratio of the noise of the Filter to the the noise of the VCO due to R1
+            Ratio of the noise of the Filter to the the noise of 
+            the VCO due to R1
         Kvco : float
             Oscillator gain in Hz/V
         Navg : float
@@ -73,7 +74,8 @@ class AnalogPLL(object):
             tz = 1 / wz
             tp = 1 / wp
             phi_fm = sqrt(2 * 10 ** (Lvco / 10))
-            R1 = (10 ** (DL / 10) - 1) / ((b - 1) / b)/(4 * k.k * Temp * Kvco ** 2) * phi_fm ** 2 * Lvco_fr ** 2
+            R1 = (10 ** (DL / 10) - 1) / ((b - 1) / b)/(4 * k.k * Temp * Kvco ** 2)\
+                * phi_fm ** 2 * Lvco_fr ** 2
             C1 = tz / R1
             C2 = tz * tp / R1 / (tz - tp)
             Icp = (2 * k.pi * self.Navg * fc * b) / (R1 * Kvco * (b-1))
@@ -84,18 +86,18 @@ class AnalogPLL(object):
                                 'Icp': Icp}
     def lti(self):
         Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
-        if self.order ==2:
+        if self.order == 2:
             C1, C2, R1, Icp = (fvals['C1'], fvals['C2'], fvals['R1'],
-                fvals['Icp'])
+                               fvals['Icp'])
             tp = R1 * C1 * C2 / (C1 + C2)
             tz = R1 * C1
             Kf = 1 / (C1 + C2)
             Kpfd = Icp / 2 / k.pi
             K = Kf * Kpfd / Navg * 2 * k.pi * Kvco
             G = lti.lti([K*tz, K], [tp, 1, 0, 0])
-            T = lti.lti([tp,1, 0, 0],[tp, 1, K*tz, K])
-            H = lti.lti([Navg*K*tz, Navg*K],[tp, 1, K*tz, K])
-        if self.order ==3:
+            T = lti.lti([tp, 1, 0, 0], [tp, 1, K*tz, K])
+            H = lti.lti([Navg*K*tz, Navg*K], [tp, 1, K*tz, K])
+        if self.order == 3:
             Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
             C1, C2, C3, R1, R2, Icp = (fvals['C1'], fvals['C2'], fvals['C3'],
                 fvals['R1'], fvals['R2'],fvals['Icp'])

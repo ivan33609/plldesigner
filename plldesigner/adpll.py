@@ -13,7 +13,8 @@ class Sim(object):
 class Struct(object):
     pass
 Icp = 300e-6;
-mypll=pll.AnalogPLL(3, 5.218e+08, Navg=55.22, prescaler=2, plltype='fractionalN')
+mypll=pll.AnalogPLL(3, 5.218e+08, Navg=55.22, prescaler=2, 
+                    plltype='fractionalN')
 mypll.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
 
 if __name__ == "__main__":
