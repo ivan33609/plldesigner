@@ -34,7 +34,7 @@ class AnalogPLL(object):
         Lvco_fr : float
             Frequency where the  Lvco is specified
         DL : float
-            Ratio of the noise of the Filter to the the noise of 
+            Ratio of the noise of the Filter to the the noise of
             the VCO due to R1
         Kvco : float
             Oscillator gain in Hz/V
@@ -85,6 +85,19 @@ class AnalogPLL(object):
             self.filter_vals = {'C1': C1, 'C2':C2, 'C3':C3, 'R1':R1, 'R2':R2,
                                 'Icp': Icp}
     def lti(self):
+        """
+        Calculates the lti models for the PLL
+
+        Return
+        ------
+        G : lti
+            The open loop transfer function
+        T : lti
+            The error transfer function
+        H : lti
+            the input to output transfer function
+
+        """
         Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
         if self.order == 2:
             C1, C2, R1, Icp = (fvals['C1'], fvals['C2'], fvals['R1'],
