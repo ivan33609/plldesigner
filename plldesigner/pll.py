@@ -13,7 +13,7 @@ from .pnoise import Pnoise
 
 
 class AnalogPLL(object):
-    def __init__(self, order, Kvco, Navg=1.0, prescaler=1, plltype='integer',
+    def __init__(self, order, Kvco, Navg=1.0, prescaler=1, plltype=2,
                  filter_vals={}):
         self.order, self.Kvco, self.Navg = order, Kvco, Navg
         self.prescaler, self.plltype = prescaler, plltype
@@ -52,7 +52,7 @@ class AnalogPLL(object):
         self.Lvco_fr, self.DL, self.Temp = Lvco_fr, DL, Temp
         Kvco = self.Kvco
         # phisical constants
-        if self.order == 3:
+        if self.order == 3 and self.plltype == 2:
             b = (tan(pm * k.pi / 180 / 2 + k.pi /4)) ** 2
             wc = 2 * k.pi * fc
             wp = wc * sqrt(b)
@@ -66,7 +66,7 @@ class AnalogPLL(object):
             C2 = tz * tp / R1 / (tz - tp)
             Icp = (2 * k.pi * self.Navg * fc * b) / (R1 * Kvco * (b - 1))
             self.filter_vals = {'C1' : C1, 'C2' : C2, 'R1' : R1, 'Icp' : Icp}
-        if self.order == 4:
+        if self.order == 4 and self.plltype == 2:
             b = (tan(pm * k.pi / 180 / 2 + k.pi / 4)) ** 2
             wc = 2 * k.pi * fc
             wp = wc * sqrt(b)
@@ -99,7 +99,7 @@ class AnalogPLL(object):
 
         """
         Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
-        if self.order == 3:
+        if self.order == 3 and self.plltype == 2:
             C1, C2, R1, Icp = (fvals['C1'], fvals['C2'], fvals['R1'],
                                fvals['Icp'])
             tp = R1 * C1 * C2 / (C1 + C2)
@@ -110,7 +110,7 @@ class AnalogPLL(object):
             G = lti.lti([K*tz, K], [tp, 1, 0, 0])
             T = lti.lti([tp, 1, 0, 0], [tp, 1, K*tz, K])
             H = lti.lti([Navg*K*tz, Navg*K], [tp, 1, K*tz, K])
-        if self.order == 4:
+        if self.order == 4 and self.plltype == 2:
             Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
             C1, C2, C3, R1, R2, Icp = (fvals['C1'], fvals['C2'], fvals['C3'],
                 fvals['R1'], fvals['R2'],fvals['Icp'])
@@ -127,37 +127,14 @@ class AnalogPLL(object):
         if self.order not in(3, 4):
             print('order not implemented, the noise can not be calculated')
             raise
+        self.G, self.T, self.H = G, T, H
         return G, T, H
 
 
     def calcTF(self, fm):
-        s = 2 * k.pi * fm * 1j
-        Navg, Kvco, fvals = (self.Navg, self.Kvco, self.filter_vals)
-        if self.order == 3:
-            C1, C2, R1, Icp = (fvals['C1'], fvals['C2'], fvals['R1'],
-                               fvals['Icp'])
-            tp = R1 * C1 * C2 / (C1 + C2)
-            tz = R1 * C1
-            Kf = 1 / (C1 + C2)
-            Zf = Kf * (tz * s + 1)/(tp * s ** 2 + s)
-            Kpfd = Icp / 2 / k.pi
-            Gfm = 1 / Navg * Kpfd * Zf * 2 * k.pi * Kvco / s
-            Tfm = 1 / (1 + Gfm)
-            Hfm = Navg * Gfm / (1 + Gfm)
-        if self.order == 4:
-            C1, C2, C3, R1, R2, Icp = (fvals['C1'], fvals['C2'], fvals['C3'],
-                               fvals['R1'], fvals['R2'],fvals['Icp'])
-            tz = R1 * C1
-            Kvco = self.Kvco
-            Zf = (tz * s + 1) / (C1 * C2 * C3 * R1 * R2 * s ** 3 +
-                (C1 * C2 * R1 + C1 * C3 * R1 + C1 * C3 * R2 + C2 * C3 * R2) * s ** 2 + (C1 + C2 + C3) * s)
-            Kpfd = Icp / 2 / k.pi
-            Gfm = 1 / Navg * Kpfd * Zf * 2 * k.pi * Kvco / s
-            Tfm = 1 / (1 + Gfm)
-            Hfm =  Navg * Gfm / (1 + Gfm)
-        if self.order not in(3, 4):
-            print('order not implemented, the noise can not be calculated')
-            raise
+        Hfm = self.H.freqresp(w=2 * k.pi * fm)
+        Gfm = self.G.freqresp(w=2 * k.pi * fm)
+        Tfm = self.T.freqresp(w=2 * k.pi * fm)
         return Hfm, Gfm, Tfm
 
     def calcfcpm(self,fm):
@@ -167,11 +144,11 @@ class AnalogPLL(object):
     def filter_vn2(self, fm, Temp=300.13):
         fvals = self.filter_vals
         s = 2*k.pi*fm*1j
-        if self.order==3:
+        if self.order==3 and self.plltype == 2:
             C1, C2, R1 = (fvals['C1'], fvals['C2'], fvals['R1'])
             HvnR1 = C1 / ((C1 * C2 * R1) * s + C1 + C2)
             vn2 = 4 * k.k * Temp * R1 * abs(HvnR1) ** 2
-        if self.order==4:
+        if self.order==4  and self.plltype == 2:
             C1, C2, C3, R1, R2 = (fvals['C1'], fvals['C2'], fvals['C3'],
                               fvals['R1'], fvals['R2'])
             HvnR1 = C1 / (C1 * C2 * C3 * R1 * R2 * s ** 2 +
