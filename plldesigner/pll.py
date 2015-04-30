@@ -52,6 +52,10 @@ class AnalogPLL(object):
         self.Lvco_fr, self.DL, self.Temp = Lvco_fr, DL, Temp
         Kvco = self.Kvco
         # phisical constants
+        valid_orders_types = ((3,2), (4,2))
+        if (self.order, self.plltype) not in valid_orders_types:
+            print('Order and Type not implemented')
+            raise
         if self.order == 3 and self.plltype == 2:
             b = (tan(pm * k.pi / 180 / 2 + k.pi /4)) ** 2
             wc = 2 * k.pi * fc
@@ -132,9 +136,9 @@ class AnalogPLL(object):
 
 
     def calcTF(self, fm):
-        Hfm = self.H.freqresp(w=2 * k.pi * fm)
-        Gfm = self.G.freqresp(w=2 * k.pi * fm)
-        Tfm = self.T.freqresp(w=2 * k.pi * fm)
+        unused, Hfm = self.H.freqresp(w=2 * k.pi * fm)
+        unused, Gfm = self.G.freqresp(w=2 * k.pi * fm)
+        unused, Tfm = self.T.freqresp(w=2 * k.pi * fm)
         return Hfm, Gfm, Tfm
 
     def calcfcpm(self,fm):
