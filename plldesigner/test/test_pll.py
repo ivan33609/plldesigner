@@ -6,7 +6,7 @@ import numpy as np
 
 def test_loopcalc():
     from numpy.testing import  assert_almost_equal
-    myAnalogPLL=AnalogPLL(3, 521.8e+06, Navg=55.22, prescaler=2, plltype='Integer')
+    myAnalogPLL=AnalogPLL(4, 521.8e+06, Navg=55.22, prescaler=2, plltype=2)
     myAnalogPLL.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
     # Assert filter values for a specific design
     assert_almost_equal(myAnalogPLL.filter_vals['C1'], 4.2842e-10, 4)
@@ -19,8 +19,9 @@ def test_loopcalc():
 def test_add_noise_sources():
     from numpy.testing import  assert_almost_equal
     import matplotlib.pyplot as plt
-    myAnalogPLL=AnalogPLL(3, 521.8e+06, Navg=10, prescaler=2, plltype='Integer')
+    myAnalogPLL=AnalogPLL(4, 521.8e+06, Navg=10, prescaler=2, plltype=2)
     myAnalogPLL.loopcalc(1e6, 60.0, -130.0, 1e6, 0.1, 300)
+    myAnalogPLL.lti()
     pinput = [Pnoise([1e3, 1e6, 1e9],[-140, -140, -140], label='input', fc=48e6)]
     poutput = [Pnoise([1e3, 1e6, 1e9],[-70, -120, -180], label='VCO', fc=480e6)]
 
@@ -35,8 +36,8 @@ def test_lti():
     import matplotlib.pyplot as plt
 
     # Create a PLL and obtain the lti system
-    for order in [2, 3]:
-        myAnalogPLL=AnalogPLL(order, 521.8e+06, Navg=10, prescaler=2, plltype='Integer')
+    for order in [3, 4]:
+        myAnalogPLL=AnalogPLL(order, 521.8e+06, Navg=10, prescaler=2, plltype=2)
         myAnalogPLL.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
         G, T, H = myAnalogPLL.lti()
 
