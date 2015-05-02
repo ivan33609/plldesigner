@@ -36,8 +36,9 @@ Development plan
 $f_n/fm^{-n}+f_{n=1}/fm^{-n+1}+$
   - [x] over rule the addition operation
   - [x] Interpolate
-  - [x] Generate a model of the data (extrapolate)
+  - [x] Integrate the noise in the "log domain"
   - [x] Create plots with asymptotic values (Done)
+  - [x] Generate phase noise samples with a pnoise description (Done)
   - [-] Create the object with phase vs t point (no implemented)
   - [ ] Plot several noise sources and the resultant (Postpone)
 - [ ] **LTI model of the PLL**
