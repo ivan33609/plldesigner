@@ -39,8 +39,6 @@ $f_n/fm^{-n}+f_{n=1}/fm^{-n+1}+$
   - [x] Integrate the noise in the "log domain"
   - [x] Create plots with asymptotic values
   - [x] Generate phase noise samples with a pnoise description
-  - [-] Create the object with phase vs t point (no implemented)
-  - [ ] Plot several noise sources and the resultant (Postpone)
 - [ ] **LTI model of the PLL**
   - [x] Second order approximation
   - [ ] Phase margin plot
@@ -58,8 +56,8 @@ $f_n/fm^{-n}+f_{n=1}/fm^{-n+1}+$
 
 - [ ] **Documentation**
   - [ ] **Notebooks**
-    - [x] Sigma-delta modulator
+    - [x] [Sigma-delta modulator examples](https://github.com/jfosorio/plldesigner/blob/master/notebooks/Sigma_delta_noise_in_fractional_PLLs.ipynb)
+	- [x] [phase noise class examples] (https://github.com/jfosorio/plldesigner/blob/master/notebooks/A_class_to_represent_phase_noise.ipynb)
     - [ ] Analog PLL class
-    - [ ] phase noise
     - [ ]
   - [ ] Webpage
