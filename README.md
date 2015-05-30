@@ -1,5 +1,5 @@
-plldesigner
-===========
+PLL Designer
+============
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/jfosorio/plldesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Coverage Status](https://coveralls.io/repos/jfosorio/plldesigner/badge.png)](https://coveralls.io/r/jfosorio/plldesigner)
@@ -61,3 +61,20 @@ $f_n/fm^{-n}+f_{n=1}/fm^{-n+1}+$
     - [ ] Analog PLL class
     - [ ]
   - [ ] Webpage
+  
+  Citation
+  --------
+
+  To cite PLL designer in publications use::
+
+      J.F. Osorio. PLL designer (2014). PLL Designer: A Python toolbox for designing PLL's
+      URL http://http://jfosorio.github.io/
+
+  A BibTeX entry for LaTeX users is::
+
+      @Manual{,
+      title = {PLL Designer: A Python toolbox for designing PLL's},
+      author = {{J. F. Osorio}},
+      year = {2014},
+      url = {http://http://jfosorio.github.io/},
+      }
