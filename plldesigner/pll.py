@@ -52,7 +52,7 @@ class AnalogPLL(object):
         self.Lvco_fr, self.DL, self.Temp = Lvco_fr, DL, Temp
         Kvco = self.Kvco
         # phisical constants
-        valid_orders_types = ((3,2), (4,2))
+        valid_orders_types = ((3, 2), (4, 2))
         if (self.order, self.plltype) not in valid_orders_types:
             print('Order and Type not implemented')
             raise

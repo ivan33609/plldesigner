@@ -19,7 +19,7 @@ def test_gen_mash():
     # order two
     sequence, period = gen_mash(2, 19, (floatnum * 2 ** 19).astype(int))
     assert_almost_equal(sequence.mean(), floatnum.mean(), 4)
-    assert period == None, "floatnum {:2.12f}".format(floatnum[0])
+    assert period == None
     sequence, period = gen_mash(2, 19, 0.25 * np.ones(1000) * 2 ** 19)
     assert period == 8
 
