@@ -186,7 +186,7 @@ class AnalogPLL(object):
         str_val  = 'Filter report \n'
         str_val += '============= \n'
         str_val += 'Input parameters: \n'
-        str_val += 'fc = {:2.3f} (MHz), pm = {:d} (degrees) \n'.format(self.fc / 1e6,self.pm)
+        str_val += 'fc = {:2.3f} (MHz), pm = {:2.1f} (degrees) \n'.format(self.fc / 1e6,self.pm)
         str_val += 'Ideal values: \n'
         str_val += 'Icp = {:2.3f} (uA), R1 = {:2.3f} (Kohms), R2 = {:2.3f} (Kohms) \n'.format(
             self.filter_vals['Icp'] / 1e-6, self.filter_vals['R1'] / 1e3,
