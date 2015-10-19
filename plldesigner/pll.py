@@ -183,12 +183,13 @@ class AnalogPLL(object):
         return phi_int
 
     def filter_repr(self):
-        str_val  = 'Filter report \n'
-        str_val += '============= \n'
-        str_val += 'Input parameters: \n'
-        str_val += 'fc = {:2.3f} (MHz), pm = {:2.1f} (degrees) \n'.format(self.fc / 1e6,self.pm)
-        str_val += 'Ideal values: \n'
-        str_val += 'Icp = {:2.3f} (uA), R1 = {:2.3f} (Kohms), R2 = {:2.3f} (Kohms) \n'.format(
+        str_val  = 'Filter report\n'
+        str_val += '=============\n'
+        str_val += 'Input parameters:\n'
+        str_val += 'fc = {:2.3f} (MHz), pm = {:2.1f} (degrees)\n'.format(self.fc / 1e6,self.pm)
+        str_val += 'Lvco {:2.3f} (dBc/Hz) @ {:2.1f} (MHz), DL = {:2.1f}\n'.format(self.Lvco, self.Lvco_fr/1e6, self.DL)
+        str_val += 'Ideal values:\n'
+        str_val += 'Icp = {:2.3f} (uA), R1 = {:2.3f} (Kohms), R2 = {:2.3f} (Kohms)\n'.format(
             self.filter_vals['Icp'] / 1e-6, self.filter_vals['R1'] / 1e3,
             self.filter_vals['R2'] / 1e3)
         str_val += 'C1 = {:2.3f} (pf), C2 = {:2.3f} (pf), C3 = {:2.3f} (pf)\n'.format(
@@ -217,6 +218,29 @@ class AnalogPLL(object):
         for pn_elem in pn_in_colored:
             pn_total += pn_elem
         return pn_total, pn_in_colored, pn_out_colored
+
+    def sim(self, t, U=[]):
+        '''
+        Simulate the PLL with a input
+
+        Parameters
+        ----------
+        t : array_like
+            Vector with the time
+        U: array_like
+            Input to the block with the same lenght of t, if a empty is given
+
+        Return
+        ------
+        out : array like response to U
+        error : error
+        '''
+        if not len(U):
+            U=np.ones_like(t)
+        t, signal_out, X = lti.lsim(self.H, U=U, T=t)
+        error_out = signal_out - U*self.Navg
+        return signal_out, error_out
+
 
 
 class AnalogPLLDict(AnalogPLL):
