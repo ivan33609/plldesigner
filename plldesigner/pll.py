@@ -198,18 +198,18 @@ class AnalogPLL(object):
 
     def add_noise_sources(self,fm, pn_inputs=[], pn_outputs=[]):
         # Calculated the transfer functions
-        Hfm,Gfm,Tfm = self.calcTF(fm)
+        Hfm, Gfm, Tfm = self.calcTF(fm)
         # All the noise sources use the same offset
         for pn_elem in pn_inputs+pn_outputs:
             pn_elem.fm = fm
         # Calcualte the noise of the filter
-        phi2_filter = self.filter_vn2(fm)*(self.Kvco/fm)**2
+        phi2_filter = self.filter_vn2(fm) * (self.Kvco / fm) ** 2
         pn_filter = Pnoise(fm,phi2_filter,label='filter',units='rad**/Hz')
-        pn_filter_colored = pn_filter*(np.abs(Tfm)**2)
+        pn_filter_colored = pn_filter * (np.abs(Tfm) ** 2)
         # Calculate the noise of the other sources
-        pn_out_colored = [pn_elm*(np.abs(Tfm)**2) for pn_elm in pn_outputs]
+        pn_out_colored = [pn_elm * (np.abs(Tfm) ** 2) for pn_elm in pn_outputs]
         pn_out_colored.append(pn_filter_colored)
-        pn_in_colored  = [pn_elm*(np.abs(Hfm)**2) for pn_elm in pn_inputs]
+        pn_in_colored  = [pn_elm * (np.abs(Hfm) ** 2) for pn_elm in pn_inputs]
 
         pn_total = pn_out_colored[0]
         for pn_elem in pn_out_colored[1:]:
@@ -218,8 +218,8 @@ class AnalogPLL(object):
             pn_total += pn_elem
         return pn_total, pn_in_colored, pn_out_colored
 
-    def sim(self, t, U=[]):
-        '''
+    def sim(self, t, U = []):
+        """
         Simulate the PLL with a input
 
         Parameters
@@ -233,11 +233,11 @@ class AnalogPLL(object):
         ------
         out : array like response to U
         error : error
-        '''
+        """
         if not len(U):
-            U=np.ones_like(t)
+            U = np.ones_like(t)
         t, signal_out, X = lti.lsim(self.H, U=U, T=t)
-        error_out = signal_out - U*self.Navg
+        error_out = signal_out - U * self.Navg
         return signal_out, error_out
 
 
