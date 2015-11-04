@@ -25,7 +25,6 @@ class Pnoise(object):
 
     """
 
-
     def __init__(self, fm, pnfm, fc=1, label=None, units='dBc/Hz'):
         """
         Phase noise from separate vectors for fm and phase noise
@@ -59,7 +58,6 @@ class Pnoise(object):
             "rad/sqrt(Hz)": lambda x: 10 * log10(x ** 2 / 2),
             "rad**/Hz": lambda x: 10 * log10(x / 2),
         }
-
 
         # This elements are always kept
         self._fmi = np.copy(np.asarray(self._fm))
@@ -131,6 +129,8 @@ class Pnoise(object):
             Array with the phase noise values at the fm frequencies
         slopes : array_like
             Array with slopes of the values that are interpolated (dBc/dec)
+        fc : float
+            The current of the oscilator the current is refered to
         label : str
             Plotting label
 
@@ -169,7 +169,6 @@ class Pnoise(object):
         self._fmi = np.copy(fi_x[ix])
         self._ldbci = np.copy(ldbc_x[ix])
 
-
     def create_new(self, fx, label=None):
         """
         Return a Pnoise clase with with different frequency sampling
@@ -182,7 +181,7 @@ class Pnoise(object):
         Return a Pnoise clase with with different frequency sampling
         """
         if not label:
-          label = self.label
+            label = self.label
         fm = self.fm
         ldbc = self.ldbc + 20*log10(fc/self._fc)
         pnoise_class = Pnoise(fm, ldbc, fc=fc, label=label, units='dBc/Hz')

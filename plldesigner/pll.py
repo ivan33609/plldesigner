@@ -134,7 +134,6 @@ class AnalogPLL(object):
         self.G, self.T, self.H = G, T, H
         return G, T, H
 
-
     def calcTF(self, fm):
         unused, Hfm = self.H.freqresp(w=2 * k.pi * fm)
         unused, Gfm = self.G.freqresp(w=2 * k.pi * fm)
