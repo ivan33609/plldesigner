@@ -1,9 +1,7 @@
 language: python
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
-  - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
 install:
   - sudo apt-get update
@@ -23,7 +21,7 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION  numpy scipy matplotlib nose pandas
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION  numpy scipy matplotlib nose
   - source activate test-environment
   - python setup.py install
  
@@ -33,7 +31,7 @@ install:
 
 # Run test
 script:
-  - nosetests --with-cov  -cov plldesigner --cov-config .coveragerc --logging-level=INFO
+  - nosetests --with-coverage  --logging-level=INFO
  
 # Calculate coverage
 after_success:
