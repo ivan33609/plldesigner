@@ -25,7 +25,7 @@ install:
   - source activate test-environment
   - python setup.py install
  
-  - conda install -c dan_blanchard python-coveralls nose-cov
+  #- conda install -c dan_blanchard python-coveralls nose-cov
   - pip install coveralls
   - python setup.py install
 
