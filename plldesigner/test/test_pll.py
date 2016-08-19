@@ -9,12 +9,12 @@ def test_loopcalc():
     myAnalogPLL=AnalogPLL(4, 521.8e+06, Navg=55.22, prescaler=2, plltype=2)
     myAnalogPLL.loopcalc(1e6, 60.0, -107.8, 1e6, 0.7, 300)
     # Assert filter values for a specific design
-    assert_almost_equal(myAnalogPLL.filter_vals['C1'], 4.2842e-10, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['C2'], 3.31384e-11, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['C3'], 3.31384e-12, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['Icp'], 516.691e-6, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['R1'], 1.3864303e3, 4)
-    assert_almost_equal(myAnalogPLL.filter_vals['R2'], 1.28688908e3, 4)
+    assert_almost_equal(myAnalogPLL.filter_vals['C1'], 4.2842e-10, 3)
+    assert_almost_equal(myAnalogPLL.filter_vals['C2'], 3.31384e-11, 3)
+    assert_almost_equal(myAnalogPLL.filter_vals['C3'], 3.31384e-12, 3)
+    assert_almost_equal(myAnalogPLL.filter_vals['Icp'], 516.691e-6, 3)
+    assert_almost_equal(myAnalogPLL.filter_vals['R1'], 1.3864303e3, 3)
+    assert_almost_equal(myAnalogPLL.filter_vals['R2'], 1.28688908e3, 3)
     
 def test_add_noise_sources():
     from numpy.testing import  assert_almost_equal

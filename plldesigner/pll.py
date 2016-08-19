@@ -15,6 +15,26 @@ from .pnoise import Pnoise
 class AnalogPLL(object):
     def __init__(self, order, Kvco, Navg=1.0, prescaler=1, plltype=2,
                  filter_vals={}):
+        """
+        Create a AnalogPLL with different parameter
+
+        Parameters
+        ----------
+        order : int
+            The order of the pll
+        Kvco : float
+            Oscillator gain in Hz/V
+        Navg : float
+            Division ration average
+        prescaler : int
+            The prescaler value not implemented yet
+
+        Return
+        ------
+        filter_val      Is a dictionary with all the filter components
+
+        """
+        
         self.order, self.Kvco, self.Navg = order, Kvco, Navg
         self.prescaler, self.plltype = prescaler, plltype
         self.filter_vals = filter_vals
